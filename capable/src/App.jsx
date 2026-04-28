@@ -356,7 +356,8 @@ const QUICK_PROMPTS = [
   "What is Computer Vision?",
 ];
 
-const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;// 🔑 Replace with your key
+//onst GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+const GEMINI_API_KEY = "REDACTED";
 const GEMINI_MODEL = "gemini-3-flash-preview"; // Use a stable, available model
 
 // Inject typing dot animation once
