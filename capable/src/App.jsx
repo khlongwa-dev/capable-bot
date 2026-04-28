@@ -356,6 +356,39 @@ const QUICK_PROMPTS = [
   "What is Computer Vision?",
 ];
 
+const GEMINI_API_KEY = "REDACTED"; // 🔑 Replace with your key
+const GEMINI_MODEL = "gemini-3-flash-preview"; // Use a stable, available model
+
+// Inject typing dot animation once
+if (typeof document !== "undefined" && !document.getElementById("capable-typing-style")) {
+  const s = document.createElement("style");
+  s.id = "capable-typing-style";
+  s.textContent = `
+    @keyframes typingDot {
+      0%, 60%, 100% { opacity: 0.2; transform: translateY(0); }
+      30% { opacity: 1; transform: translateY(-4px); }
+    }
+  `;
+  document.head.appendChild(s);
+}
+
+const SYSTEM_INSTRUCTION = `You are Capable, a Data Science assistant embedded in a learning web page.
+You answer questions strictly based on your knowledge of the following topics.
+Topics you cover:
+- Machine Learning (ML)
+- Natural Language Processing (NLP)
+- Deep Learning
+- Large Language Models (LLMs)
+- Computer Vision
+- Artificial Intelligence (AI)
+- Neural Networks
+- AI Ethics
+- Real-World Applications of AI
+If a user asks a question that is outside these topics, do NOT make up an answer.
+Instead respond with:
+"That question is outside my current scope. Would you like me to submit it directly to the development team for you?"
+Keep your answers clear, friendly, and concise.`;
+
 function CapableBot() {
   const isMobile = useIsMobile();
   const [open, setOpen] = useState(false);
@@ -365,24 +398,84 @@ function CapableBot() {
   ]);
   const [input, setInput] = useState("");
   const [chipsVisible, setChipsVisible] = useState(true);
+  const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef(null);
+  // Keep conversation history for multi-turn chat (Gemini format)
+  const conversationHistory = useRef([]);
 
   useEffect(() => {
     if (open) messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, open]);
+  }, [messages, open, isTyping]);
 
-  const sendMessage = (text) => {
+  const sendMessage = async (text) => {
     const msg = text || input.trim();
-    if (!msg) return;
+    if (!msg || isTyping) return;
     setInput("");
     setChipsVisible(false);
+
+    // Add user message to UI
     setMessages(prev => [...prev, { role: "user", text: msg }]);
-    setTimeout(() => {
+
+    // Add to conversation history (Gemini format)
+    conversationHistory.current.push({
+      role: "user",
+      parts: [{ text: msg }],
+    });
+
+    setIsTyping(true);
+
+    try {
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            system_instruction: {
+              parts: [{ text: SYSTEM_INSTRUCTION }],
+            },
+            contents: conversationHistory.current,
+            generationConfig: {
+              temperature: 0.2,
+              maxOutputTokens: 1024,
+            },
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err?.error?.message || `API error ${response.status}`);
+      }
+
+      const data = await response.json();
+      const botText =
+        data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+        "Sorry, I couldn't generate a response. Please try again.";
+
+      // Add bot reply to conversation history
+      conversationHistory.current.push({
+        role: "model",
+        parts: [{ text: botText }],
+      });
+
+      setMessages(prev => [...prev, { role: "bot", text: botText }]);
+    } catch (err) {
+      console.error("Gemini API error:", err);
       setMessages(prev => [
         ...prev,
-        { role: "bot", text: `Once the Zapier webhook is connected, I'll give you a full answer about "${msg}". Stay tuned!` },
+        {
+          role: "bot",
+          text: `⚠️ ${
+            err.message.includes("API_KEY_INVALID") || err.message.includes("400")
+              ? "Invalid API key. Please set a valid Gemini API key in the code."
+              : `Something went wrong: ${err.message}`
+          }`,
+        },
       ]);
-    }, 800);
+    } finally {
+      setIsTyping(false);
+    }
   };
 
   const btnSize = isMobile ? 52 : 64;
@@ -508,11 +601,32 @@ function CapableBot() {
                     border: msg.role === "bot" ? "1px solid rgba(255,255,255,0.07)" : "none",
                     fontSize: "0.875rem", lineHeight: 1.6,
                     fontFamily: "'DM Sans', sans-serif",
+                    whiteSpace: "pre-wrap",
                   }}
                 >
                   {msg.text}
                 </div>
               ))}
+              {isTyping && (
+                <div style={{
+                  alignSelf: "flex-start",
+                  padding: "12px 18px",
+                  borderRadius: "18px 18px 18px 4px",
+                  background: "#1c1c26",
+                  border: "1px solid rgba(255,255,255,0.07)",
+                  display: "flex", gap: "5px", alignItems: "center",
+                }}>
+                  {[0, 1, 2].map(i => (
+                    <span key={i} style={{
+                      width: "7px", height: "7px", borderRadius: "50%",
+                      background: "#7c6af7",
+                      animation: "typingDot 1.2s infinite",
+                      animationDelay: `${i * 0.2}s`,
+                      display: "inline-block",
+                    }} />
+                  ))}
+                </div>
+              )}
               <div ref={messagesEndRef} />
             </div>
 
@@ -552,9 +666,10 @@ function CapableBot() {
               <input
                 type="text"
                 value={input}
+                disabled={isTyping}
                 onChange={e => setInput(e.target.value)}
-                onKeyDown={e => e.key === "Enter" && sendMessage()}
-                placeholder="Ask Capable anything..."
+                onKeyDown={e => e.key === "Enter" && !isTyping && sendMessage()}
+                placeholder={isTyping ? "Capable is thinking..." : "Ask Capable anything..."}
                 style={{
                   flex: 1, borderRadius: "12px", padding: "10px 16px",
                   background: "#1c1c26",
@@ -562,8 +677,9 @@ function CapableBot() {
                   color: "#f0eee8", fontFamily: "'DM Sans', sans-serif",
                   fontSize: "0.875rem", outline: "none",
                   transition: "border-color 0.2s",
+                  opacity: isTyping ? 0.6 : 1,
                 }}
-                onFocus={e => e.target.style.borderColor = "#7c6af7"}
+                onFocus={e => { if (!isTyping) e.target.style.borderColor = "#7c6af7"; }}
                 onBlur={e => e.target.style.borderColor = "rgba(255,255,255,0.1)"}
               />
               <button
