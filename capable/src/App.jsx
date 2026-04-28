@@ -346,7 +346,7 @@ function TopicCard({ topic }) {
 }
 
 /* ─────────────────────────────────────────────────────
-   CAPABLE BOT --> FOR THE LOVE OF IT ALL
+   CAPABLE BOT
 ───────────────────────────────────────────────────── */
 const QUICK_PROMPTS = [
   "What is Machine Learning?",
