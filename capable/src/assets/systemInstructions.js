@@ -139,3 +139,5 @@ A: You can see AI in your phone's face unlock, Netflix recommendations, spam fil
 
 Q: How is AI in healthcare different from AI in entertainment?
 A: AI in healthcare focuses on saving lives — detecting diseases, suggesting treatments, and analyzing scans. AI in entertainment focuses on keeping you engaged — recommending shows, music, and games you might enjoy.`;
+
+export default SYSTEM_INSTRUCTION
