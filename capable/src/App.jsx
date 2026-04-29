@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-
+import SYSTEM_INSTRUCTION from "../assets/systemInstructions";
 /* ─────────────────────────────────────────────────────
    HOOK — detect mobile screen
 ───────────────────────────────────────────────────── */
@@ -372,22 +372,6 @@ if (typeof document !== "undefined" && !document.getElementById("capable-typing-
   document.head.appendChild(s);
 }
 
-const SYSTEM_INSTRUCTION = `You are Capable, a Data Science assistant embedded in a learning web page.
-You answer questions strictly based on your knowledge of the following topics.
-Topics you cover:
-- Machine Learning (ML)
-- Natural Language Processing (NLP)
-- Deep Learning
-- Large Language Models (LLMs)
-- Computer Vision
-- Artificial Intelligence (AI)
-- Neural Networks
-- AI Ethics
-- Real-World Applications of AI
-If a user asks a question that is outside these topics, do NOT make up an answer.
-Instead respond with:
-"That question is outside my current scope. Would you like me to submit it directly to the development team for you?"
-Keep your answers clear, friendly, and concise.`;
 
 function CapableBot() {
   const isMobile = useIsMobile();
