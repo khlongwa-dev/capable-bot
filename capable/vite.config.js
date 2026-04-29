@@ -8,13 +8,4 @@ export default defineConfig({
     tailwindcss(),
   ],
   base: "/",
-  server: {
-    proxy: {
-      '/api': {
-        target: 'https://generativelanguage.googleapis.com',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ''),
-      }
-    }
-  }
 })
