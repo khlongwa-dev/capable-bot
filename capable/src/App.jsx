@@ -357,7 +357,7 @@ const QUICK_PROMPTS = [
 ];
 
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
-const GEMINI_MODEL = "gemini-flash-lite-latest"; // Use a stable, available model
+const GEMINI_MODEL = "gemini-flash-preview"; // Use a stable, available model
 
 // Inject typing dot animation once
 if (typeof document !== "undefined" && !document.getElementById("capable-typing-style")) {
