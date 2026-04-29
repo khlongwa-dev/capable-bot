@@ -356,7 +356,6 @@ const QUICK_PROMPTS = [
   "What is Computer Vision?",
 ];
 
-const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 const GEMINI_MODEL = "gemini-3.1-flash-lite-preview"; // Use a stable, available model
 
 // Inject typing dot animation once
@@ -409,23 +408,20 @@ function CapableBot() {
     setIsTyping(true);
 
     try {
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            system_instruction: {
-              parts: [{ text: SYSTEM_INSTRUCTION }],
-            },
-            contents: conversationHistory.current,
-            generationConfig: {
-              temperature: 0.2,
-              maxOutputTokens: 1024,
-            },
-          }),
-        }
-      );
+      const response = await fetch("/api/chat", {
+           method: "POST",
+           headers: { "Content-Type": "application/json" },
+           body: JSON.stringify({
+             system_instruction: {
+               parts: [{ text: SYSTEM_INSTRUCTION }],
+             },
+             contents: conversationHistory.current,
+             generationConfig: {
+               temperature: 0.2,
+               maxOutputTokens: 1024,
+             },
+           }),
+         });
 
       if (!response.ok) {
         const err = await response.json();
