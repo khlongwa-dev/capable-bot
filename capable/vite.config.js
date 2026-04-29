@@ -7,7 +7,7 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
-  base: "/capable-bot/",
+  base: "/",
   server: {
     proxy: {
       '/api': {
