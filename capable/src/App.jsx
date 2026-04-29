@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import SYSTEM_INSTRUCTION from "../assets/systemInstructions";
+import SYSTEM_INSTRUCTION from "./assets/systemInstructions";
 /* ─────────────────────────────────────────────────────
    HOOK — detect mobile screen
 ───────────────────────────────────────────────────── */
