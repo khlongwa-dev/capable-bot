@@ -350,9 +350,8 @@ function TopicCard({ topic }) {
 ───────────────────────────────────────────────────── */
 const QUICK_PROMPTS = [
   "What is Machine Learning?",
-  "Explain LLMs simply",
-  "NLP use cases",
-  "AI vs ML difference",
+  "What is a Neural Network?",
+  "How is AI applied in the real world?",
   "What is Computer Vision?",
 ];
 
