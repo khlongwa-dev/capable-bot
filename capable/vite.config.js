@@ -7,5 +7,14 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
-  base: "/capable-bot/"
+  base: "/capable-bot/",
+  server: {
+    proxy: {
+      '/api': {
+        target: 'https://generativelanguage.googleapis.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ''),
+      }
+    }
+  }
 })
